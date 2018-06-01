@@ -55,7 +55,8 @@ class InfusionsoftHelper
         $fields = [
             'Id',
             'Email',
-            'Groups'
+            'Groups',
+            "_Products"
         ];
 
         try {
