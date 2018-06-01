@@ -33,4 +33,14 @@ class InfusionsoftController extends Controller
 
         return Response::json($infusionsoft->getAllTags());
     }
+
+    public function testInfusionsoftIntegrationCreateContact(){
+
+        $infusionsoft = new InfusionsoftHelper();
+
+        return Response::json($infusionsoft->createContact([
+            'Email' => uniqid().'@test.com',
+            "_Products" => 'ipa,iea'
+        ]));
+    }
 }
