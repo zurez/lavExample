@@ -13,3 +13,5 @@ use Illuminate\Http\Request;
 |
 */
 
+
+Route::get("/boot","ApiController@boot")->name("api.boot");
