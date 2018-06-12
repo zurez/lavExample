@@ -24,7 +24,7 @@ class ApiController extends Controller
 
         $infusionsoft->createContact([
             'Email' => $uniqid.'@test.com',
-            "_Products" => 'ipa,iea'
+            "_Products" => 'iaa,iea,ipa'
         ]);
 
         $user = User::create([
@@ -34,9 +34,11 @@ class ApiController extends Controller
         ]);
 
         // attach IPA M1-3 & M5
-        $user->completed_modules()->attach(Module::where('course_key', 'ipa')->limit(3)->get());
-        $user->completed_modules()->attach(Module::where('name', 'IPA Module 5')->first());
+        $user->completed_modules()->attach(Module::where('course_key', 'iaa')->limit(2)->get());
 
+        $user->completed_modules()->attach(Module::where('course_key', 'ipa')->limit(7)->get());
+        $user->completed_modules()->attach(Module::where('name', 'IPA Module 5')->first());
+        $user->completed_modules()->attach(Module::where('name', 'IAA Module 5')->first());
 
         return $user;
     }
@@ -72,9 +74,22 @@ class ApiController extends Controller
 
 
 
-    private function get_order($email){
-        $infusionsoft = new InfusionsoftHelper();
-        $contact=$infusionsoft->getContact($email);
+    private function get_order($email,$test=False){
+
+        if ($test==true) {
+            # code...
+
+            $contact=["Email" => "5b1eddfa78d56@test.com",
+            "Groups" => "110,118",
+            "_Products" => "ipa,iea",
+            "Id" => 78
+            ];
+
+        }else{
+            $infusionsoft = new InfusionsoftHelper();
+            $contact=$infusionsoft->getContact($email);
+        }
+        
         $this->contact=$contact;
         $order=NULL;
         try {
@@ -90,7 +105,7 @@ class ApiController extends Controller
     private function get_user_completed($email){
         $query="
             SELECT
-                m.name ,
+               DISTINCT m.name ,
                 m.course_key
             FROM 
                 modules m 
@@ -98,6 +113,7 @@ class ApiController extends Controller
                 JOIN users u on u.id=ucm.user_id
             WHERE 
                 u.email='$email'
+
 
         ";
         return DB::select(DB::raw($query));
@@ -119,10 +135,12 @@ class ApiController extends Controller
 
             if ($element->course_key==$course_key) {
                 # code...
+
                 return $element->name;
             }
         }, $get_user_completed);
-        return count($modules);
+       
+        return count(array_filter($modules));
     }
     private function get_tag($module_index,$course_key,$order=[]){
         $index=$module_index+1;
@@ -174,17 +192,21 @@ class ApiController extends Controller
     }
     /***************Handler************************/ 
 
-    public function module_reminder_assigner($email="")
+    public function module_reminder_assigner($email)
     {
         # code...
         $success=false;
         $message="";
         $ret=compact('success','message');
         //$email=$r->contact_email;
+        $test=false;
+        if (isset($r->test)) {
+            $test=true;
+        }
         try {
             $data=$this->get_user_completed($email);
             //return $data;
-            $order=$this->get_order($email);
+            $order=$this->get_order($email,$test);
 
             $courses=$this->get_user_courses_count($data);
            
@@ -199,7 +221,7 @@ class ApiController extends Controller
             $infusionsoft=new InfusionsoftHelper();
             $iResponse=$infusionsoft->addTag($contact_id, $tag_id);
             $ret["success"]=$iResponse;
-            
+            $ret["message"]=$tag;
         } catch (\Exception $e) {
             $ret["message"]=$e->getMessage();
         }
@@ -216,26 +238,32 @@ class ApiController extends Controller
     }
 
     /*************TESTS***************/
-    public function test_get_order($email="5b1eddfa78d56@test.com")
+    public function test_api($email="5b1f2804d063d@test.com")
     {
+        $this->exampleCustomer();
         $data=$this->get_user_completed($email);
         //return $data;
-        $order=$this->get_order($email);
+        $order=$this->get_order($email,false);
 
         $courses=$this->get_user_courses_count($data);
-       
+        echo "courses";
+        dump($courses);
         $course_key=$this->active_course($courses,$order);
-        
+        echo "course_key";
+        dump($course_key);
         $module_count=$this->get_user_module_count($data,$course_key);
-
+        echo "module_count";
+        dump($module_count);
         $tag=$this->get_tag($module_count,$course_key,$order);
-        dump($tag);
+        echo "order";
+        dump($order);
         $tag_id=InfusionsoftTag::where("name",$tag)->value("id");
         $contact_id=$this->contact["Id"];
-        dump($tag_id,$contact_id);
+       
         $infusionsoft=new InfusionsoftHelper();
         $iResponse=$infusionsoft->addTag($contact_id, $tag_id);
         $ret["success"]=$iResponse;
+        $ret["message"]=$tag;
         return Response::json($ret);
     }
 }
