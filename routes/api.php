@@ -15,3 +15,7 @@ use Illuminate\Http\Request;
 
 
 Route::get("/boot","ApiController@boot")->name("api.boot");
+
+Route::get("/test","ApiController@test_get_order")->name("api.test");
+
+Route::get("/module_reminder_assigner","ApiController@module_reminder_assigner")->name("api.module_reminder_assigner");
