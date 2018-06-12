@@ -13,9 +13,17 @@ use Illuminate\Http\Request;
 |
 */
 
+/*Setup Methods.*/ 
+Route::get("/boot",
+	"ApiController@boot"
+)->name("api.boot");
 
-Route::get("/boot","ApiController@boot")->name("api.boot");
-
-Route::get("/test","ApiController@test_get_order")->name("api.test");
-
-Route::get("/module_reminder_assigner","ApiController@module_reminder_assigner")->name("api.module_reminder_assigner");
+Route::get(
+	"/test",
+	"ApiController@test_api"
+)->name("api.test");
+/**/ 
+Route::post(
+	"/module_reminder_assigner",
+	"ApiController@module_reminder_assigner"
+)->name("api.module_reminder_assigner");
