@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class ApiTest extends PHPUnit_Framework_TestCase
+class ApiTest extends TestCase
 {
     /**
      * A basic test example.
