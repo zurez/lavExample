@@ -162,7 +162,7 @@ class ApiController extends Controller
     }
 
   
-    private function active_course($get_user_courses_count,$order)
+    private function active_course($get_user_courses_count,$order=[])
     {
         # code...
         $active_course="none";
@@ -233,8 +233,9 @@ class ApiController extends Controller
 
     public function boot()
     {
+        $this->create_users();
         $this->save_tags_locally();
-        return "tags saved"   ;
+        return "boot succesful"   ;
     }
 
     /*************TESTS***************/
