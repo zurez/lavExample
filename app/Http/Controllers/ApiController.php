@@ -192,13 +192,13 @@ class ApiController extends Controller
     }
     /***************Handler************************/ 
 
-    public function module_reminder_assigner($email)
+    public function module_reminder_assigner(Request $r)
     {
         # code...
         $success=false;
         $message="";
         $ret=compact('success','message');
-        //$email=$r->contact_email;
+        $email=$r->contact_email;
         $test=false;
         if (isset($r->test)) {
             $test=true;
