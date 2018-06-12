@@ -43,6 +43,14 @@ class ApiController extends Controller
         return $user;
     }
 
+    /*
+        @returns void
+
+
+        Obtains tags from the helper, and saves in DB.
+
+
+    */ 
     private function save_tags_locally(){
         $infusionsoft = new InfusionsoftHelper();
         $tags=$infusionsoft->getAllTags();
@@ -72,7 +80,14 @@ class ApiController extends Controller
 
     }
 
+    /*
+        @returns array 
 
+
+        Returns array of ordered courses
+
+
+    */ 
 
     private function get_order($email,$test=False){
 
@@ -102,6 +117,14 @@ class ApiController extends Controller
 
     }
 
+    /*
+        @returns object
+
+
+        Returns an object containing completed modules for a user
+
+
+    */ 
     private function get_user_completed($email){
         $query="
             SELECT
@@ -142,6 +165,16 @@ class ApiController extends Controller
        
         return count(array_filter($modules));
     }
+
+    /*
+        @returns string
+
+
+        Returns tag for the next module
+
+
+    */ 
+
     private function get_tag($module_index,$course_key,$order=[]){
         $index=$module_index+1;
         $tag="--";
@@ -161,7 +194,15 @@ class ApiController extends Controller
         return $tag;
     }
 
-  
+    
+    /*
+        @returns string
+
+
+        Returns the course which the user should start or finish.
+
+
+    */ 
     private function active_course($get_user_courses_count,$order=[])
     {
         # code...
@@ -191,7 +232,14 @@ class ApiController extends Controller
 
     }
     /***************Handler************************/ 
+    /*
+        @returns json response
 
+
+        The main handler for the api
+
+
+    */ 
     public function module_reminder_assigner(Request $r)
     {
         # code...
@@ -205,7 +253,7 @@ class ApiController extends Controller
         }
         try {
             $data=$this->get_user_completed($email);
-            //return $data;
+         
             $order=$this->get_order($email,$test);
 
             $courses=$this->get_user_courses_count($data);
@@ -223,6 +271,7 @@ class ApiController extends Controller
             $ret["success"]=$iResponse;
             $ret["message"]=$tag;
         } catch (\Exception $e) {
+            Log::info("Exception in handler. Exception message -> ".$e->getMessage());
             $ret["message"]=$e->getMessage();
         }
         return Response::json($ret); 
@@ -233,7 +282,7 @@ class ApiController extends Controller
 
     public function boot()
     {
-        $this->create_users();
+        //$this->create_users();
         $this->save_tags_locally();
         return "boot succesful"   ;
     }
